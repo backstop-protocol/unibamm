@@ -86,12 +86,7 @@ contract UniswapLPManager {
     uint min1 = bal1.mul(lpAmount) / lpToken.totalSupply();    
 
     withdrawLP(lpAmount);
-    console.log("===lpAmount", lpAmount);
-    console.log("===lpToken", lpToken.balanceOf(address(this)));
-    //uniRouter.removeLiquidity(address(token0), address(token1), lpAmount, min0, min1, address(this), block.timestamp);
-    uniRouter.removeLiquidity(address(token0), address(token1), 1, 1, 1, address(this), block.timestamp);
-    console.log("===yey!!!");
-
+    uniRouter.removeLiquidity(address(token0), address(token1), lpAmount, min0, min1, address(this), block.timestamp);
   }
 
   function getTokenBalance(IERC20 token) public returns(uint) {
