@@ -1,0 +1,1191 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/shmuel/Documents/projects/unibam2/contracts/crop.sol": {
+      "lastModificationDate": 1637504238081,
+      "contentHash": "2d3d4daa58f553fbe48573570571d03b",
+      "sourceName": "contracts/crop.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "CropJoin",
+        "ERC20",
+        "VatLike"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/CropJoinAdapter.sol": {
+      "lastModificationDate": 1637504238080,
+      "contentHash": "b1443a439ecdc130ec3b0058a315312f",
+      "sourceName": "contracts/CropJoinAdapter.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./crop.sol"
+      ],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "CropJoinAdapter",
+        "Dummy",
+        "DummyGem"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/PriceFormula.sol": {
+      "lastModificationDate": 1637504238080,
+      "contentHash": "01afd798a0dc54307e8617f85206b5c7",
+      "sourceName": "contracts/PriceFormula.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-periphery/contracts/libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "PriceFormula"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/libraries/SafeMath.sol": {
+      "lastModificationDate": 1637506563551,
+      "contentHash": "9f77127a0e2c55c2058453327e84bde3",
+      "sourceName": "@uniswap/v2-periphery/contracts/libraries/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol": {
+      "lastModificationDate": 1637506563551,
+      "contentHash": "b545c97573c8aa5876a4f9e25f28a732",
+      "sourceName": "@uniswap/v2-periphery/contracts/libraries/UniswapV2Library.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol",
+        "./SafeMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "UniswapV2Library"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/UniswapV2Router02.sol": {
+      "lastModificationDate": 1637753447129,
+      "contentHash": "1917532828f0a7a4ee4ca9e5ea07cf75",
+      "sourceName": "@uniswap/v2-periphery/contracts/UniswapV2Router02.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "hardhat/console.sol",
+        "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol",
+        "@uniswap/lib/contracts/libraries/TransferHelper.sol",
+        "./interfaces/IUniswapV2Router02.sol",
+        "./libraries/UniswapV2Library.sol",
+        "./libraries/SafeMath.sol",
+        "./interfaces/IERC20.sol",
+        "./interfaces/IWETH.sol"
+      ],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": [
+        "UniswapV2Router02"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/QuickswapLPManager.sol": {
+      "lastModificationDate": 1638107720329,
+      "contentHash": "1e26f1dfdaa2c90215fad1298cf19f5b",
+      "sourceName": "contracts/QuickswapLPManager.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "hardhat/console.sol",
+        "@uniswap/lib/contracts/libraries/TransferHelper.sol",
+        "@uniswap/v2-periphery/contracts/UniswapV2Router02.sol",
+        "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol",
+        "@uniswap/v2-periphery/contracts/interfaces/IERC20.sol",
+        "@uniswap/v2-periphery/contracts/libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": [
+        "IQuickswapStakingRewards",
+        "PriceFeed",
+        "UniswapLPManager"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol": {
+      "lastModificationDate": 1637506563238,
+      "contentHash": "3fa31c3860f2b9585c3a98c64850829e",
+      "sourceName": "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IUniswapV2Pair"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/interfaces/IWETH.sol": {
+      "lastModificationDate": 1637506563548,
+      "contentHash": "270f2c1a1f22475259d5a2f6a524f72e",
+      "sourceName": "@uniswap/v2-periphery/contracts/interfaces/IWETH.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IWETH"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1637506563546,
+      "contentHash": "3d2b948a9266ee66b6e739de97c7e6e9",
+      "sourceName": "@uniswap/v2-periphery/contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol": {
+      "lastModificationDate": 1637506563237,
+      "contentHash": "ec39b5372f4f4d52101b4da561e2aee6",
+      "sourceName": "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IUniswapV2Factory"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/lib/contracts/libraries/TransferHelper.sol": {
+      "lastModificationDate": 1637506562515,
+      "contentHash": "7fad4038612c5f040ebd746a3e58e0db",
+      "sourceName": "@uniswap/lib/contracts/libraries/TransferHelper.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0"
+      ],
+      "artifacts": [
+        "TransferHelper"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol": {
+      "lastModificationDate": 1637506563548,
+      "contentHash": "3fd36426274a5b35f7e702f87ba08a8e",
+      "sourceName": "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IUniswapV2Router01.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2"
+      ],
+      "artifacts": [
+        "IUniswapV2Router02"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol": {
+      "lastModificationDate": 1637506563548,
+      "contentHash": "95d8729b2c698dc663322167b3c085fe",
+      "sourceName": "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.2"
+      ],
+      "artifacts": [
+        "IUniswapV2Router01"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/fix.sol": {
+      "lastModificationDate": 1637570389127,
+      "contentHash": "636f1881760875ca5a6fbd42d3412765",
+      "sourceName": "contracts/fix.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-core/contracts/UniswapV2Factory.sol"
+      ],
+      "versionPragmas": [
+        "0.5.16"
+      ],
+      "artifacts": [
+        "UniswapV2FactoryXXX"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/UniswapV2Factory.sol": {
+      "lastModificationDate": 1637506563253,
+      "contentHash": "bbd1d6d8cec14355db9a75d10b0d6802",
+      "sourceName": "@uniswap/v2-core/contracts/UniswapV2Factory.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IUniswapV2Factory.sol",
+        "./UniswapV2Pair.sol"
+      ],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "UniswapV2Factory"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/UniswapV2Pair.sol": {
+      "lastModificationDate": 1637506563254,
+      "contentHash": "04b129f0ab195c778c2717f368acc162",
+      "sourceName": "@uniswap/v2-core/contracts/UniswapV2Pair.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IUniswapV2Pair.sol",
+        "./UniswapV2ERC20.sol",
+        "./libraries/Math.sol",
+        "./libraries/UQ112x112.sol",
+        "./interfaces/IERC20.sol",
+        "./interfaces/IUniswapV2Factory.sol",
+        "./interfaces/IUniswapV2Callee.sol"
+      ],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "UniswapV2Pair"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/UniswapV2ERC20.sol": {
+      "lastModificationDate": 1637506563251,
+      "contentHash": "4c24d958cf49846da9fd36a99d81f9fc",
+      "sourceName": "@uniswap/v2-core/contracts/UniswapV2ERC20.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./interfaces/IUniswapV2ERC20.sol",
+        "./libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "UniswapV2ERC20"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/libraries/Math.sol": {
+      "lastModificationDate": 1637506563245,
+      "contentHash": "bee6c1959728d5d42c14151076cebd83",
+      "sourceName": "@uniswap/v2-core/contracts/libraries/Math.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "Math"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/libraries/UQ112x112.sol": {
+      "lastModificationDate": 1637506563255,
+      "contentHash": "2a703244e9f645c6fb297a983ce7c9c4",
+      "sourceName": "@uniswap/v2-core/contracts/libraries/UQ112x112.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "UQ112x112"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/libraries/SafeMath.sol": {
+      "lastModificationDate": 1637506563249,
+      "contentHash": "a65356c329efeffba75210664f5df3cd",
+      "sourceName": "@uniswap/v2-core/contracts/libraries/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "=0.5.16"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/interfaces/IUniswapV2Callee.sol": {
+      "lastModificationDate": 1637506563236,
+      "contentHash": "30a4aed15b3fa3ce5588118b7cecfa7f",
+      "sourceName": "@uniswap/v2-core/contracts/interfaces/IUniswapV2Callee.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IUniswapV2Callee"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/interfaces/IERC20.sol": {
+      "lastModificationDate": 1637506563235,
+      "contentHash": "3d2b948a9266ee66b6e739de97c7e6e9",
+      "sourceName": "@uniswap/v2-core/contracts/interfaces/IERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol": {
+      "lastModificationDate": 1637506563236,
+      "contentHash": "752c725168e1a5b73a8209897f18c5b9",
+      "sourceName": "@uniswap/v2-core/contracts/interfaces/IUniswapV2ERC20.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0"
+      ],
+      "artifacts": [
+        "IUniswapV2ERC20"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/fix.1.sol": {
+      "lastModificationDate": 1637509912882,
+      "contentHash": "995cf644be260c590bf929bc2f9e64f0",
+      "sourceName": "contracts/fix.1.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-periphery/contracts/test/DeflatingERC20.sol"
+      ],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": []
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/test/DeflatingERC20.sol": {
+      "lastModificationDate": 1637506563553,
+      "contentHash": "7476ba791f9afb6f870f10560972e0a0",
+      "sourceName": "@uniswap/v2-periphery/contracts/test/DeflatingERC20.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../libraries/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": [
+        "DeflatingERC20"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/fix.2.sol": {
+      "lastModificationDate": 1637568579362,
+      "contentHash": "f14d5185f406d60718ad748dcd309ba4",
+      "sourceName": "contracts/fix.2.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@uniswap/v2-periphery/contracts/test/WETH9.sol"
+      ],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": []
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/@uniswap/v2-periphery/contracts/test/WETH9.sol": {
+      "lastModificationDate": 1637506563555,
+      "contentHash": "c60afbcd54ec9da3b3908e2db56c0d12",
+      "sourceName": "@uniswap/v2-periphery/contracts/test/WETH9.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "=0.6.6"
+      ],
+      "artifacts": [
+        "WETH9"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/quickSwap/StakingRewardsFactory.sol": {
+      "lastModificationDate": 1637752710379,
+      "contentHash": "793ba06a71664e4d0b9a5b8b51a58606",
+      "sourceName": "contracts/quickSwap/StakingRewardsFactory.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 999999
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "^0.5.16"
+      ],
+      "artifacts": [
+        "Address",
+        "ERC20Detailed",
+        "IERC20",
+        "IStakingRewards",
+        "IUniswapV2ERC20",
+        "Math",
+        "Ownable",
+        "ReentrancyGuard",
+        "RewardsDistributionRecipient",
+        "SafeERC20",
+        "SafeMath",
+        "StakingRewards",
+        "StakingRewardsFactory"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/mocks/PriceFeedMock.sol": {
+      "lastModificationDate": 1637672149372,
+      "contentHash": "8183ce747bcaa43b7e8408373bdd0968",
+      "sourceName": "contracts/mocks/PriceFeedMock.sol",
+      "solcConfig": {
+        "version": "0.6.11",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.11"
+      ],
+      "artifacts": [
+        "PriceFeedMock"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/contracts/mocks/QuickswapLPManagerWraper.sol": {
+      "lastModificationDate": 1638107576739,
+      "contentHash": "0b317ef08b70324e2e912eaef0fcb85e",
+      "sourceName": "contracts/mocks/QuickswapLPManagerWraper.sol",
+      "solcConfig": {
+        "version": "0.6.6",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./../QuickswapLPManager.sol",
+        "hardhat/console.sol"
+      ],
+      "versionPragmas": [
+        "0.6.6"
+      ],
+      "artifacts": [
+        "QuickswapLPManagerWraper"
+      ]
+    },
+    "/Users/shmuel/Documents/projects/unibam2/node_modules/hardhat/console.sol": {
+      "lastModificationDate": 1637506563605,
+      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
+      "sourceName": "hardhat/console.sol",
+      "solcConfig": {
+        "version": "0.8.4",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 100
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.22 <0.9.0"
+      ],
+      "artifacts": [
+        "console"
+      ]
+    }
+  }
+}
