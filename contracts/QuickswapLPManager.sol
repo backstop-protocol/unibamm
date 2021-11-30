@@ -43,6 +43,7 @@ contract UniswapLPManager {
     feed = _feed;
     uniRouter = _uniRouter;
     quickswapStaking = _quickswapStaking;
+    _lpToken.approve(address(_uniRouter), uint (-1));
   }
 
   // callable by anyone
@@ -213,5 +214,9 @@ contract UniswapLPManager {
 
     // try to deposit and stake the LP (might fail if quickswap pool was manipulated)
     depositInventory();
+  }
+
+  fallback() external {
+
   }
 }
