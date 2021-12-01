@@ -9,7 +9,7 @@ const MINIMUM_LIQUIDITY = toBN(10).pow(toBN(3))
 //const MockToken = artifacts.require("MockToken")
 const UniswapLPManager = artifacts.require("UniswapLPManager")
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02")
-const DeflatingERC20 = artifacts.require("DeflatingERC20")
+const ERC20 = artifacts.require("ERC20fix")
 const WETH9 = artifacts.require("WETH9")
 const StakingRewardsFactory = artifacts.require("StakingRewardsFactory")
 // construct
@@ -54,9 +54,9 @@ contract('BAMM', async accounts => {
 
     beforeEach(async () => {
       uniswapV2Library = await UniswapV2Library.new()
-      tokenA = await DeflatingERC20.new(totalSupply, { from: bammOwner })
-      tokenB = await DeflatingERC20.new(totalSupply, { from: bammOwner })
-      rewardToken = await DeflatingERC20.new(totalSupply, { from: bammOwner })
+      tokenA = await ERC20.new(totalSupply, { from: bammOwner })
+      tokenB = await ERC20.new(totalSupply, { from: bammOwner })
+      rewardToken = await ERC20.new(totalSupply, { from: bammOwner })
       const WETH = await WETH9.new()
       factoryV2 = await UniswapV2Factory.new(owner)
       await factoryV2.createPair(tokenA.address, tokenB.address)
@@ -127,6 +127,10 @@ contract('BAMM', async accounts => {
       const depositedB = (tokenBBalanceBefore.sub(tokenBBalanceAfter))
       assert.equal(depositedA.toString(), amountA.toString())
       assert.equal(depositedB.toString(), amountB.toString())
+      const pairBalOfA = await tokenA.balanceOf(pair.address)
+      const pairBalOfB = await tokenB.balanceOf(pair.address)
+      assert.equal(pairBalOfA.toString(), depositedA.toString())
+      assert.equal(pairBalOfB.toString(), depositedB.toString())
       return [depositedA, depositedB]
     }
 
@@ -139,21 +143,21 @@ contract('BAMM', async accounts => {
 
     it("getReserveBalances", async () => {
       const { balance0: balance0Before, balance1: balance1Before } = await uniswapLPManager.getReserveBalances({ from: bammOwner })
-      await addLiquidity(tenthTSup, tenthTSup)
+      const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
       const { balance0: balance0After, balance1: balance1After } = await uniswapLPManager.getReserveBalances({ from: bammOwner })
-      assert.isTrue(balance0After.gt(balance0Before))
-      assert.isTrue(balance1After.gt(balance1Before))
+      assert.equal(providedA.toString(), balance0After.sub(balance0Before).toString())
+      assert.equal(providedB.toString(), balance1After.sub(balance1Before).toString())
     })
 
     it("syncAndGetReserveBalances", async () => {
       const { balance0: balance0Before, balance1: balance1Before } = await uniswapLPManager.syncAndGetReserveBalances.call({ from: bammOwner })
-      await addLiquidity(tenthTSup, tenthTSup)
+      const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
       const { balance0: balance0After, balance1: balance1After } = await uniswapLPManager.syncAndGetReserveBalances.call({ from: bammOwner })
-      assert.isTrue(balance0After.gt(balance0Before))
-      assert.isTrue(balance1After.gt(balance1Before))
+      assert.equal(providedA.toString(), balance0After.sub(balance0Before).toString())
+      assert.equal(providedB.toString(), balance1After.sub(balance1Before).toString())
     })
 
-    it.only("withdrawToken", async () => {
+    it("withdrawToken", async () => {
       const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
       const amount = toWei("1")
       const bammBallanceBefore = await pair.balanceOf(uniswapLPManager.address)
@@ -180,8 +184,8 @@ contract('BAMM', async accounts => {
       const withdrawnA = (tokenABalanceAfter.sub(tokenABalanceBefore))
       const withdrawnB = (tokenBBalanceAfter.sub(tokenBBalanceBefore))
 
-      console.log("withdrawnA", withdrawnA.toString())
-      console.log("withdrawnB", withdrawnB.toString())
+      // console.log("withdrawnA", withdrawnA.toString())
+      // console.log("withdrawnB", withdrawnB.toString())
       
       assert.equal(withdrawnA.toString(), withdrawAmount.toString()) 
       assert.equal(withdrawnB.toString(), withdrawAmount.toString()) 
