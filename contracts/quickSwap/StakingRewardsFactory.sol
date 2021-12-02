@@ -4,9 +4,6 @@
 
 pragma solidity ^0.5.16;
 
-import "hardhat/console.sol";
-
-
 /**
  * @dev Interface of the ERC20 standard as defined in the EIP. Does not include
  * the optional functions; to access them see `ERC20Detailed`.
@@ -592,9 +589,7 @@ contract StakingRewards is IStakingRewards, RewardsDistributionRecipient, Reentr
 
     function withdraw(uint256 amount) public nonReentrant updateReward(msg.sender) {
         require(amount > 0, "Cannot withdraw 0");
-                console.log(amount);
-        //console.log("-- withdraw_amount",amount);
-        //console.log("-- _totalSupply   ",_totalSupply);
+
         _totalSupply = _totalSupply.sub(amount);
         _balances[msg.sender] = _balances[msg.sender].sub(amount);
         stakingToken.safeTransfer(msg.sender, amount);

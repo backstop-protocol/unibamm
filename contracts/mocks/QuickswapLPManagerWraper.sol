@@ -3,8 +3,6 @@
 pragma solidity 0.6.6;
 
 import "./../QuickswapLPManager.sol";
-import "hardhat/console.sol";
-
 
 contract QuickswapLPManagerWraper is UniswapLPManager {
 
@@ -25,7 +23,6 @@ contract QuickswapLPManagerWraper is UniswapLPManager {
   }
 
   function withdrawTokenWrapper(IERC20 token, uint amount) public {
-    console.log("withdrawTokenWrapper");
-    withdrawToken(token, amount);
+    super.withdrawToken(token, amount);
   }
 }
