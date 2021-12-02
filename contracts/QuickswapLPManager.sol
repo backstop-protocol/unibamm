@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity =0.6.6;
 
+import "hardhat/console.sol";
+
 import '@uniswap/lib/contracts/libraries/TransferHelper.sol';
 import '@uniswap/v2-periphery/contracts/UniswapV2Router02.sol';
 import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
@@ -43,6 +45,7 @@ contract UniswapLPManager {
     feed = _feed;
     uniRouter = _uniRouter;
     quickswapStaking = _quickswapStaking;
+    _lpToken.approve(address(_uniRouter), uint (-1));
   }
 
   // callable by anyone
@@ -213,5 +216,9 @@ contract UniswapLPManager {
 
     // try to deposit and stake the LP (might fail if quickswap pool was manipulated)
     depositInventory();
+  }
+
+  fallback() external {
+
   }
 }
