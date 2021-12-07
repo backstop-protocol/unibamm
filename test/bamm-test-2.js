@@ -12,24 +12,23 @@ const {
   almostTheSame,
   expandTo18Decimals,
   isWithin99Percent,
+  expandTo7Decimals
 } = require('./test-utils')
 
-//const { deployContract, MockProvider } = require('ethereum-waffle')
-//const MockToken = artifacts.require("MockToken")
-const UniswapLPManager = artifacts.require("UniswapLPManager")
+//const UniswapLPManager = artifacts.require("UniswapLPManager")
 const UniswapV2Router02 = artifacts.require("UniswapV2Router02")
 const ERC20 = artifacts.require("ERC20fix")
+const ERC201 = artifacts.require("ERC201")
 const WETH9 = artifacts.require("WETH9")
 const StakingRewardsFactory = artifacts.require("StakingRewardsFactory")
-// construct
-// deploy
+
 const IUniswapV2Pair = artifacts.require("IUniswapV2Pair")
 const UniswapV2Library = artifacts.require("UniswapV2Library")
 const PriceFeedMock = artifacts.require("PriceFeedMock")
-const QuickswapLPManagerWraper = artifacts.require("QuickswapLPManagerWraper")
+const BAMM = artifacts.require("BAMM")
 let UniswapV2Factory;
 
-contract('BAMM', async accounts => {
+contract('BAMM 2', async accounts => {
   const [firstOwner,
     defaulter_1, defaulter_2, defaulter_3,
     whale,
@@ -48,10 +47,12 @@ contract('BAMM', async accounts => {
   const feePool = "0x1000000000000000000000000000000000000001"
   const owner = "0x2000000000000000000000000000000000000002"
   const totalSupply = expandTo18Decimals(10000)
+  const totalSupplyB = expandTo7Decimals(10000)
   const tenthTSup = totalSupply.div(toBN(10))
-  let router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, uniswapLPManager;
+  const tenthTSupB = totalSupplyB.div(toBN(10))
+  let router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, bammInstance;
 
-  describe("quickswap", () => {
+  describe("bamm", () => {
 
     before(async () => {
       const { bytecode } = require("@uniswap/v2-core/build/UniswapV2Factory.json")
@@ -64,7 +65,13 @@ contract('BAMM', async accounts => {
     beforeEach(async () => {
       uniswapV2Library = await UniswapV2Library.new()
       tokenA = await ERC20.new(totalSupply, { from: bammOwner })
-      tokenB = await ERC20.new(totalSupply, { from: bammOwner })
+      tokenB = await ERC201.new(totalSupplyB, { from: bammOwner })
+      const airdrops = [alice, bob, carol].map(async account => {
+        await tokenA.transfer(account, tenthTSup, { from: bammOwner })
+        await tokenB.transfer(account, tenthTSupB, { from: bammOwner })
+      })
+      await Promise.all(airdrops)
+      collateralToken = await ERC20.new(totalSupply, { from: bammOwner })
       rewardToken = await ERC20.new(totalSupply, { from: bammOwner })
       const WETH = await WETH9.new()
       factoryV2 = await UniswapV2Factory.new(owner)
@@ -76,27 +83,69 @@ contract('BAMM', async accounts => {
       const duration = 365// days
       await stakingRewardsFactory.deploy(pairAddress, totalSupply, totalSupply)
       const { stakingRewards } = await stakingRewardsFactory.stakingRewardsInfoByStakingToken(pairAddress)
-      uniswapLPManager = await QuickswapLPManagerWraper.new(pairAddress, tokenA.address, tokenB.address, priceFeed.address, router.address, stakingRewards)
+      bammInstance = await BAMM.new(pairAddress, tokenA.address, tokenB.address, priceFeed.address, router.address, stakingRewards, collateralToken.address, priceFeed.address, rewardToken.address)
+    })
+
+    it.only('getUSDValue', async () => {
+      await addLiquidity(tenthTSup, tenthTSupB.mul(toBN(2)))
+      const tokenBPrice = toWei("10")
+      await priceFeed.setPrice(tokenB.address, tokenBPrice)
+      const tokenAPrice = toWei("20")
+      await priceFeed.setPrice(tokenA.address, tokenAPrice)
+      const userLpBal = await pair.balanceOf(bammOwner)
+      await pair.transfer(bammInstance.address, userLpBal, { from: bammOwner })
+      await bammInstance.stakeLP({ from: bammOwner })
+      const {backstop} = await bammInstance.getUSDValue.call()
+      console.log("totalUsdValue", backstop.toString())
+      const expectedUsdValue = (tenthTSup.mul(toBN(tokenAPrice))).add(tenthTSup.mul(toBN(tokenBPrice)).mul(toBN("2")))
+      assert(backstop.toString(), expectedUsdValue.toString())
+      // transfer some token A & B
+      await tokenA.transfer(bammInstance.address, toWei("1"), { from: bammOwner })
+      await tokenB.transfer(bammInstance.address, dec("9", 7), { from: bammOwner })
+      const {backstop: backstopUsdVal} = await bammInstance.getUSDValue.call()
+      const newExpectedUsdValue = toWei("4110")
+      assert(backstopUsdVal.toString(), newExpectedUsdValue)
+    })
+
+    it.only("deposit", async () => {
+      // TODO:
+      // 3 users each one deposit different amounts
+      // to check: 
+      // user share totalSupply and token are really staked out
+      // check in the staking module the bamm balance is
+      await addLiquidity(tenthTSup, tenthTSupB, alice)
+      const userLpBal = await pair.balanceOf(alice)
+
+      console.log("alice", alice)
+      console.log("userLpBal", userLpBal.toString())
+      await pair.approve(bammInstance.address, MaxUint256, { from: alice })
+      await bammInstance.deposit(userLpBal, { from: alice })
+
+      const userLpBalAfter = await pair.balanceOf(alice)
+      assert.isTrue(userLpBal.gt(userLpBalAfter))
+      const userShare = await bammInstance.balanceOf(bammOwner)
+      // const totaSahre = xxx
+      // assert.equal(userShare, totaSahre)
     })
 
     it("stakeLP & withdrawLP", async () => {
       await addLiquidity(tenthTSup, tenthTSup)
       const amount = toWei("1")
-      const bammBallanceBefore = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceBefore = await pair.balanceOf(bammInstance.address)
 
-      await pair.transfer(uniswapLPManager.address, amount, { from: bammOwner })
+      await pair.transfer(bammInstance.address, amount, { from: bammOwner })
 
-      const bammBallanceAfterTransfer = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceAfterTransfer = await pair.balanceOf(bammInstance.address)
 
-      await uniswapLPManager.stakeLP({ from: bammOwner })
+      await bammInstance.stakeLP({ from: bammOwner })
 
-      const bammBallanceAfterStakeing = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceAfterStakeing = await pair.balanceOf(bammInstance.address)
       await mineBlocks(260)
       const withdrawAmount = toBN(amount).div(toBN(2))
-      const bammBallanceBeforeWithdraw = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceBeforeWithdraw = await pair.balanceOf(bammInstance.address)
       // bamm amount should be 0 all is staked
-      await uniswapLPManager.withdrawLpWrapper(withdrawAmount, { from: bammOwner })
-      const bammBallanceAfterWithdraw = await pair.balanceOf(uniswapLPManager.address)
+      await bammInstance.withdrawLpWrapper(withdrawAmount, { from: bammOwner })
+      const bammBallanceAfterWithdraw = await pair.balanceOf(bammInstance.address)
 
       //console.log("bammBallanceBefore", bammBallanceBefore.toString())
       //console.log("bammBallanceAfterTransfer", bammBallanceAfterTransfer.toString())
@@ -108,12 +157,12 @@ contract('BAMM', async accounts => {
       assert.equal(bammBallanceAfterWithdraw.toString(), bammBallanceBeforeWithdraw.add(withdrawAmount).toString())
     })
 
-    async function addLiquidity(amountA, amountB) {
-      const balanceBefore = await pair.balanceOf(bammOwner)
-      const tokenABalanceBefore = await tokenA.balanceOf(bammOwner)
-      const tokenBBalanceBefore = await tokenB.balanceOf(bammOwner)
-      await tokenA.approve(router.address, MaxUint256, { from: bammOwner })
-      await tokenB.approve(router.address, MaxUint256, { from: bammOwner })
+    async function addLiquidity(amountA, amountB, owner = bammOwner) {
+      const balanceBefore = await pair.balanceOf(owner)
+      const tokenABalanceBefore = await tokenA.balanceOf(owner)
+      const tokenBBalanceBefore = await tokenB.balanceOf(owner)
+      await tokenA.approve(router.address, MaxUint256, { from: owner })
+      await tokenB.approve(router.address, MaxUint256, { from: owner })
       await router.addLiquidity(
         tokenA.address,
         tokenB.address,
@@ -121,17 +170,16 @@ contract('BAMM', async accounts => {
         amountB,
         amountA,
         amountB,
-        bammOwner,
+        owner,
         MaxUint256,
-        { from: bammOwner }
+        { from: owner }
       )
-      const balanceAfter = await pair.balanceOf(bammOwner)
-      const tokenABalanceAfter = await tokenA.balanceOf(bammOwner)
-      const tokenBBalanceAfter = await tokenA.balanceOf(bammOwner)
+      const balanceAfter = await pair.balanceOf(owner)
+      const tokenABalanceAfter = await tokenA.balanceOf(owner)
+      const tokenBBalanceAfter = await tokenB.balanceOf(owner)
       assert.equal(balanceBefore.toString(), "0")
-      assert.isTrue(balanceAfter > balanceBefore)
-      assert.equal(tokenABalanceBefore.toString(), totalSupply.toString())
-      assert.equal(tokenABalanceAfter.toString(), (totalSupply.sub(tenthTSup)).toString())
+      //assert.isTrue(balanceAfter > balanceBefore)
+      assert.equal(tokenABalanceAfter.toString(), (tokenABalanceBefore.sub(amountA)).toString())
       const depositedA = (tokenABalanceBefore.sub(tokenABalanceAfter))
       const depositedB = (tokenBBalanceBefore.sub(tokenBBalanceAfter))
       assert.equal(depositedA.toString(), amountA.toString())
@@ -151,17 +199,17 @@ contract('BAMM', async accounts => {
     })
 
     it("getReserveBalances", async () => {
-      const { balance0: balance0Before, balance1: balance1Before } = await uniswapLPManager.getReserveBalances({ from: bammOwner })
+      const { balance0: balance0Before, balance1: balance1Before } = await bammInstance.getReserveBalances({ from: bammOwner })
       const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
-      const { balance0: balance0After, balance1: balance1After } = await uniswapLPManager.getReserveBalances({ from: bammOwner })
+      const { balance0: balance0After, balance1: balance1After } = await bammInstance.getReserveBalances({ from: bammOwner })
       assert.equal(providedA.toString(), balance0After.sub(balance0Before).toString())
       assert.equal(providedB.toString(), balance1After.sub(balance1Before).toString())
     })
 
     it("syncAndGetReserveBalances", async () => {
-      const { balance0: balance0Before, balance1: balance1Before } = await uniswapLPManager.syncAndGetReserveBalances.call({ from: bammOwner })
+      const { balance0: balance0Before, balance1: balance1Before } = await bammInstance.syncAndGetReserveBalances.call({ from: bammOwner })
       const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
-      const { balance0: balance0After, balance1: balance1After } = await uniswapLPManager.syncAndGetReserveBalances.call({ from: bammOwner })
+      const { balance0: balance0After, balance1: balance1After } = await bammInstance.syncAndGetReserveBalances.call({ from: bammOwner })
       assert.equal(providedA.toString(), balance0After.sub(balance0Before).toString())
       assert.equal(providedB.toString(), balance1After.sub(balance1Before).toString())
     })
@@ -169,26 +217,26 @@ contract('BAMM', async accounts => {
     it("withdrawToken", async () => {
       const [providedA, providedB] = await addLiquidity(tenthTSup, tenthTSup)
       const amount = toWei("1")
-      const bammBallanceBefore = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceBefore = await pair.balanceOf(bammInstance.address)
 
-      await pair.transfer(uniswapLPManager.address, amount, { from: bammOwner })
+      await pair.transfer(bammInstance.address, amount, { from: bammOwner })
 
-      const tokenABalanceBefore = await tokenA.balanceOf(uniswapLPManager.address)
-      const tokenBBalanceBefore = await tokenB.balanceOf(uniswapLPManager.address)
+      const tokenABalanceBefore = await tokenA.balanceOf(bammInstance.address)
+      const tokenBBalanceBefore = await tokenB.balanceOf(bammInstance.address)
 
-      const bammBallanceAfterTransfer = await pair.balanceOf(uniswapLPManager.address)
+      const bammBallanceAfterTransfer = await pair.balanceOf(bammInstance.address)
 
-      await uniswapLPManager.stakeLP({ from: bammOwner })
-      const bammBallanceAfterStakeing = await pair.balanceOf(uniswapLPManager.address)
+      await bammInstance.stakeLP({ from: bammOwner })
+      const bammBallanceAfterStakeing = await pair.balanceOf(bammInstance.address)
 
       const withdrawAmount = toBN('5000000')
       const bammBallanceBeforeWithdraw = await pair.balanceOf(bammOwner)
 
-      await uniswapLPManager.withdrawTokenWrapper(tokenA.address, withdrawAmount, { from: bammOwner })
+      await bammInstance.withdrawTokenWrapper(tokenA.address, withdrawAmount, { from: bammOwner })
       const bammBallanceAfterWithdraw = await pair.balanceOf(bammOwner)
 
-      const tokenABalanceAfter = await tokenA.balanceOf(uniswapLPManager.address)
-      const tokenBBalanceAfter = await tokenB.balanceOf(uniswapLPManager.address)
+      const tokenABalanceAfter = await tokenA.balanceOf(bammInstance.address)
+      const tokenBBalanceAfter = await tokenB.balanceOf(bammInstance.address)
 
       const withdrawnA = (tokenABalanceAfter.sub(tokenABalanceBefore))
       const withdrawnB = (tokenBBalanceAfter.sub(tokenBBalanceBefore))
@@ -200,5 +248,4 @@ contract('BAMM', async accounts => {
       assert.equal(withdrawnB.toString(), withdrawAmount.toString()) 
     })
   })
-
 })
