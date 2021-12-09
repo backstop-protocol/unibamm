@@ -21,6 +21,7 @@ const ERC20 = artifacts.require("ERC20fix")
 const ERC201 = artifacts.require("ERC201")
 const WETH9 = artifacts.require("WETH9")
 const StakingRewardsFactory = artifacts.require("StakingRewardsFactory")
+const StakingRewards = artifacts.require("StakingRewards")
 
 const IUniswapV2Pair = artifacts.require("IUniswapV2Pair")
 const UniswapV2Library = artifacts.require("UniswapV2Library")
@@ -50,7 +51,7 @@ contract('BAMM 2', async accounts => {
   const totalSupplyB = expandTo7Decimals(10000)
   const tenthTSup = totalSupply.div(toBN(10))
   const tenthTSupB = totalSupplyB.div(toBN(10))
-  let router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, bammInstance;
+  let router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, bammInstance, stakingRewards;
 
   describe("bamm", () => {
 
@@ -60,12 +61,17 @@ contract('BAMM 2', async accounts => {
       await overwriteArtifact('UniswapV2Factory', bytecode)
       //console.log(UniswapV2Factory.bytecode === "0x"+bytecode)
       priceFeed = await PriceFeedMock.new()
+
     })
 
     beforeEach(async () => {
       uniswapV2Library = await UniswapV2Library.new()
       tokenA = await ERC20.new(totalSupply, { from: bammOwner })
       tokenB = await ERC201.new(totalSupplyB, { from: bammOwner })
+      const tokenBPrice = toWei("10")
+      await priceFeed.setPrice(tokenB.address, tokenBPrice)
+      const tokenAPrice = toWei("20")
+      await priceFeed.setPrice(tokenA.address, tokenAPrice) 
       const airdrops = [alice, bob, carol].map(async account => {
         await tokenA.transfer(account, tenthTSup, { from: bammOwner })
         await tokenB.transfer(account, tenthTSupB, { from: bammOwner })
@@ -82,21 +88,23 @@ contract('BAMM 2', async accounts => {
       stakingRewardsFactory = await StakingRewardsFactory.new(rewardToken.address, new Date().getTime())
       const duration = 365// days
       await stakingRewardsFactory.deploy(pairAddress, totalSupply, totalSupply)
-      const { stakingRewards } = await stakingRewardsFactory.stakingRewardsInfoByStakingToken(pairAddress)
-      bammInstance = await BAMM.new(pairAddress, tokenA.address, tokenB.address, priceFeed.address, router.address, stakingRewards, collateralToken.address, priceFeed.address, rewardToken.address)
+      const { stakingRewards: stakingRewardsAddress } = (await stakingRewardsFactory.stakingRewardsInfoByStakingToken(pairAddress))
+      stakingRewards = await StakingRewards.at(stakingRewardsAddress)
+      bammInstance = await BAMM.new(pairAddress, tokenA.address, tokenB.address, priceFeed.address, router.address, stakingRewardsAddress, collateralToken.address, priceFeed.address, rewardToken.address)
     })
 
-    it.only('getUSDValue', async () => {
+    it.only("getLPValue", async ()=> {
       await addLiquidity(tenthTSup, tenthTSupB.mul(toBN(2)))
-      const tokenBPrice = toWei("10")
-      await priceFeed.setPrice(tokenB.address, tokenBPrice)
-      const tokenAPrice = toWei("20")
-      await priceFeed.setPrice(tokenA.address, tokenAPrice)
+      const lpValue = await bammInstance.getLPValue.call()
+      assert.equal(lpValue.toString(), "4735058123106523924131869")
+    })
+
+    it('getUSDValue', async () => {
+      await addLiquidity(tenthTSup, tenthTSupB.mul(toBN(2)))
       const userLpBal = await pair.balanceOf(bammOwner)
       await pair.transfer(bammInstance.address, userLpBal, { from: bammOwner })
       await bammInstance.stakeLP({ from: bammOwner })
       const {backstop} = await bammInstance.getUSDValue.call()
-      console.log("totalUsdValue", backstop.toString())
       const expectedUsdValue = (tenthTSup.mul(toBN(tokenAPrice))).add(tenthTSup.mul(toBN(tokenBPrice)).mul(toBN("2")))
       assert(backstop.toString(), expectedUsdValue.toString())
       // transfer some token A & B
@@ -110,23 +118,63 @@ contract('BAMM 2', async accounts => {
     it.only("deposit", async () => {
       // TODO:
       // 3 users each one deposit different amounts
-      // to check: 
-      // user share totalSupply and token are really staked out
-      // check in the staking module the bamm balance is
+
       await addLiquidity(tenthTSup, tenthTSupB, alice)
-      const userLpBal = await pair.balanceOf(alice)
+      const aliceLpBalBefore = await pair.balanceOf(alice)
 
-      console.log("alice", alice)
-      console.log("userLpBal", userLpBal.toString())
       await pair.approve(bammInstance.address, MaxUint256, { from: alice })
-      await bammInstance.deposit(userLpBal, { from: alice })
+      await bammInstance.deposit(aliceLpBalBefore, { from: alice })
 
-      const userLpBalAfter = await pair.balanceOf(alice)
-      assert.isTrue(userLpBal.gt(userLpBalAfter))
-      const userShare = await bammInstance.balanceOf(bammOwner)
-      // const totaSahre = xxx
-      // assert.equal(userShare, totaSahre)
-    })
+      const aliceLpBalAfter = await pair.balanceOf(alice)
+      assert.isTrue(aliceLpBalBefore.gt(aliceLpBalAfter))
+      assert.equal(aliceLpBalAfter.toString(), "0") // all LP deposited
+
+      // checking user share
+      const aliceShare = await bammInstance.balanceOf(alice)
+      const totalSupply = await bammInstance.totalSupply()
+      assert.equal(aliceShare.toString(), totalSupply.toString())  // alice is the only depositer
+      
+      // checking staking
+      const stakedAmount = await stakingRewards.balanceOf(bammInstance.address)
+      assert.equal(stakedAmount.toString(), aliceLpBalBefore.toString()) // all of the original LP deposit is staked
+ 
+      const half = bn => bn.div(toBN(2))
+      await addLiquidity(half(tenthTSup), half(tenthTSupB), bob)
+      const bobLpBalBefore = await pair.balanceOf(bob)
+
+      await pair.approve(bammInstance.address, MaxUint256, { from: bob })
+      await bammInstance.deposit(bobLpBalBefore, { from: bob })
+
+      const bobLpBalAfter = await pair.balanceOf(bob)
+
+      // checking user share
+      const bobShare = await bammInstance.balanceOf(bob)
+      const totalSupply_2 = await bammInstance.totalSupply()
+      assert.equal(bobShare.add(aliceShare).toString(), totalSupply_2.toString())  // alice & bob are the only depositers
+
+      // checking staking
+      const stakedAmount_2 = await stakingRewards.balanceOf(bammInstance.address)
+      assert.equal(stakedAmount_2.toString(), aliceLpBalBefore.add(bobLpBalBefore).toString()) // all of bobs & alice LP deposit is staked
+
+      const aQurterOf = bn => half(half(bn))
+      // carol
+      await addLiquidity(aQurterOf(tenthTSup), aQurterOf(tenthTSupB), carol)
+      const carolLpBalBefore = await pair.balanceOf(carol)
+
+      await pair.approve(bammInstance.address, MaxUint256, { from: carol })
+      await bammInstance.deposit(carolLpBalBefore, { from: carol })
+
+      const carolLpBalAfter = await pair.balanceOf(carol)
+
+      // checking user share
+      const carolShare = await bammInstance.balanceOf(carol)
+      const totalSupply_3 = await bammInstance.totalSupply()
+      assert.equal(bobShare.add(carolShare).add(aliceShare).toString(), totalSupply_3.toString())  // alice & bob are the only depositers
+
+      // checking staking
+      const stakedAmount_3 = await stakingRewards.balanceOf(bammInstance.address)
+      assert.equal(stakedAmount_3.toString(), aliceLpBalBefore.add(bobLpBalBefore).add(carolLpBalBefore).toString()) // all of bobs & alice LP deposit is staked
+     })
 
     it("stakeLP & withdrawLP", async () => {
       await addLiquidity(tenthTSup, tenthTSup)
@@ -158,6 +206,8 @@ contract('BAMM 2', async accounts => {
     })
 
     async function addLiquidity(amountA, amountB, owner = bammOwner) {
+      const pairBalOfABefore = await tokenA.balanceOf(pair.address)
+      const pairBalOfBBefore = await tokenB.balanceOf(pair.address)
       const balanceBefore = await pair.balanceOf(owner)
       const tokenABalanceBefore = await tokenA.balanceOf(owner)
       const tokenBBalanceBefore = await tokenB.balanceOf(owner)
@@ -184,10 +234,11 @@ contract('BAMM 2', async accounts => {
       const depositedB = (tokenBBalanceBefore.sub(tokenBBalanceAfter))
       assert.equal(depositedA.toString(), amountA.toString())
       assert.equal(depositedB.toString(), amountB.toString())
-      const pairBalOfA = await tokenA.balanceOf(pair.address)
-      const pairBalOfB = await tokenB.balanceOf(pair.address)
-      assert.equal(pairBalOfA.toString(), depositedA.toString())
-      assert.equal(pairBalOfB.toString(), depositedB.toString())
+      const pairBalOfAAfter = await tokenA.balanceOf(pair.address)
+      const pairBalOfBAfter = await tokenB.balanceOf(pair.address)
+
+      assert.equal(pairBalOfABefore.add(depositedA).toString(), pairBalOfAAfter.toString())
+      assert.equal(pairBalOfBBefore.add(depositedB).toString(), pairBalOfBAfter.toString())
       return [depositedA, depositedB]
     }
 

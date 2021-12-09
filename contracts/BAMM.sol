@@ -41,9 +41,10 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
     collateralFeed = _collateralFeed;
   }
 
-  function getUSDValue() public returns(uint backstop, uint collateral) {
+  function getUSDValue() public returns(uint backstop, uint collateral, uint staked) {
     backstop = getUSDBalance();
     collateral = collateralToken.balanceOf(address(this)).mul(collateralFeed.getPrice(token0)) / (uint(10) ** collateralToken.decimals());
+    //staked = quickswapStaking.balanceOf(address(this));
   }
 
   /* 
@@ -74,26 +75,28 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
     }
    */
   function deposit(uint lpTokenAmount) public {
-    // TODO:      
     // get the total usd value
-    (uint backstop, uint collateral) = getUSDValue();
+    (uint backstop, uint collateral, uint staked) = getUSDValue();
     uint totalUsdValue = backstop.add(collateral);
     // get the USD deposit amount
     uint depositAmountUSD = lpTokenAmount.mul(getLPValue());
 
+    require(feed.getPrice(token0) > 0 && feed.getPrice(token1) > 0, "deposit: price feed is down");
     require(totalUsdValue > 0 || totalSupply() == 0, "deposit: system is rekt");
 
     // caclulate the share
     uint newShare = PRECISION;
     if(totalSupply() > 0) newShare = totalSupply().mul(depositAmountUSD) / totalUsdValue;
 
-    console.log(address(msg.sender));
-    console.log(lpToken.balanceOf(address(msg.sender)));
     // deposit
     require(lpToken.transferFrom(msg.sender, address(this), lpTokenAmount), "deposit: transferFrom failed");
 
     // update LP token
     mint(msg.sender, newShare);
+
+    //stake the LP token for rewards
+    lpToken.approve(address(quickswapStaking), lpTokenAmount);
+    quickswapStaking.stake(lpTokenAmount);
 
     emit UserDeposit(msg.sender, lpTokenAmount, newShare);        
   }
