@@ -29,6 +29,8 @@ const PriceFeedMock = artifacts.require("PriceFeedMock")
 const BAMM = artifacts.require("BAMM")
 let UniswapV2Factory;
 
+const half = bn => bn.div(toBN(2))
+
 contract('BAMM 2', async accounts => {
   const [firstOwner,
     defaulter_1, defaulter_2, defaulter_3,
@@ -51,7 +53,7 @@ contract('BAMM 2', async accounts => {
   const totalSupplyB = expandTo7Decimals(10000)
   const tenthTSup = totalSupply.div(toBN(10))
   const tenthTSupB = totalSupplyB.div(toBN(10))
-  let router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, bammInstance, stakingRewards;
+  let collateralToken, rewardToken, router, pair, tokenA, tokenB, uniswapV2Library, factoryV2, stakingRewardsFactory, bammInstance, stakingRewards;
 
   describe("bamm", () => {
 
@@ -93,7 +95,7 @@ contract('BAMM 2', async accounts => {
       bammInstance = await BAMM.new(pairAddress, tokenA.address, tokenB.address, priceFeed.address, router.address, stakingRewardsAddress, collateralToken.address, priceFeed.address, rewardToken.address)
     })
 
-    it.only("getLPValue", async ()=> {
+    it("getLPValue", async ()=> {
       await addLiquidity(tenthTSup, tenthTSupB.mul(toBN(2)))
       const lpValue = await bammInstance.getLPValue.call()
       assert.equal(lpValue.toString(), "4735058123106523924131869")
@@ -115,13 +117,9 @@ contract('BAMM 2', async accounts => {
       assert(backstopUsdVal.toString(), newExpectedUsdValue)
     })
 
-    it.only("deposit", async () => {
-      // TODO:
-      // 3 users each one deposit different amounts
-
+    it("deposit", async () => {
       await addLiquidity(tenthTSup, tenthTSupB, alice)
       const aliceLpBalBefore = await pair.balanceOf(alice)
-
       await pair.approve(bammInstance.address, MaxUint256, { from: alice })
       await bammInstance.deposit(aliceLpBalBefore, { from: alice })
 
@@ -138,7 +136,6 @@ contract('BAMM 2', async accounts => {
       const stakedAmount = await stakingRewards.balanceOf(bammInstance.address)
       assert.equal(stakedAmount.toString(), aliceLpBalBefore.toString()) // all of the original LP deposit is staked
  
-      const half = bn => bn.div(toBN(2))
       await addLiquidity(half(tenthTSup), half(tenthTSupB), bob)
       const bobLpBalBefore = await pair.balanceOf(bob)
 
@@ -174,7 +171,55 @@ contract('BAMM 2', async accounts => {
       // checking staking
       const stakedAmount_3 = await stakingRewards.balanceOf(bammInstance.address)
       assert.equal(stakedAmount_3.toString(), aliceLpBalBefore.add(bobLpBalBefore).add(carolLpBalBefore).toString()) // all of bobs & alice LP deposit is staked
-     })
+    })
+
+    it.only("withdraw", async () => {
+      await addLiquidity(tenthTSup, tenthTSupB, alice)
+
+      await pair.approve(bammInstance.address, MaxUint256, { from: alice })
+      const depositAmount = toBN("3162277660167379")
+      await bammInstance.deposit(depositAmount, { from: alice })
+      
+      // TODO: transfers to the unibamm to simulate a not fully rebalanced state
+      const transferAmount = toBN("72634552")
+      await tokenA.transfer(bammInstance.address, transferAmount, {from: bammOwner})
+      await tokenB.transfer(bammInstance.address, transferAmount, {from: bammOwner})
+      await collateralToken.transfer(bammInstance.address, transferAmount, {from: bammOwner})
+      await rewardToken.transfer(bammInstance.address, transferAmount, {from: bammOwner})
+
+      const aliceLpBalBefore = await pair.balanceOf(alice)
+      const aliceShareBefore = await bammInstance.balanceOf(alice)
+      const totalSupplyBefore = await bammInstance.totalSupply()
+
+      const aliceTokenABefore = await tokenA.balanceOf(alice)
+      const aliceTokenBBefore = await tokenB.balanceOf(alice)
+
+      const aliceCollateralTokenBefore = await collateralToken.balanceOf(alice)
+      const rewardTokenBefore = await rewardToken.balanceOf(alice)
+
+      const withdrawAmount = half(aliceShareBefore)
+      await bammInstance.withdraw(withdrawAmount, { from: alice })
+      
+      const aliceLpBalAfter = await pair.balanceOf(alice)
+      const aliceShareAfter = await bammInstance.balanceOf(alice)
+      const totalSupplyAfter = await bammInstance.totalSupply()
+
+      const aliceTokenAAfter = await tokenA.balanceOf(alice)
+      const aliceTokenBAfter = await tokenB.balanceOf(alice)
+
+      const aliceCollateralTokenAfter = await collateralToken.balanceOf(alice)
+      const aliceRewardTokenAfter = await rewardToken.balanceOf(alice)
+
+      assert.equal(aliceShareAfter.toString(), half(aliceShareBefore).toString())
+      assert.equal(aliceLpBalAfter.toString(), half(depositAmount).toString())
+      assert.equal(totalSupplyAfter.toString(), half(totalSupplyBefore).toString())
+
+      // TODO: check all other tokens
+      assert.equal(aliceTokenAAfter.toString(), aliceTokenABefore.add(half(transferAmount)).toString())
+      assert.equal(aliceTokenBAfter.toString(), aliceTokenBBefore.add(half(transferAmount)).toString())
+      assert.equal(aliceCollateralTokenAfter.toString(), aliceCollateralTokenBefore.add(half(transferAmount)).toString())
+
+    })
 
     it("stakeLP & withdrawLP", async () => {
       await addLiquidity(tenthTSup, tenthTSup)

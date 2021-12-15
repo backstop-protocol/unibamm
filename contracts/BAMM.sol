@@ -16,6 +16,7 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
   uint constant public PRECISION = 1e18;
 
   event UserDeposit(address indexed user, uint lusdAmount, uint numShares);
+  event UserWithdraw(address indexed user, uint collateralAmount, uint lpAmount, uint token0Amount, uint token1Amount, uint shares);            
 
   constructor(
     IERC20 _lpToken,
@@ -47,33 +48,6 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
     //staked = quickswapStaking.balanceOf(address(this));
   }
 
-  /* 
-        function deposit(uint lusdAmount) external {        
-        // update share
-        uint lusdValue = LUSD.balanceOf(address(this));
-        uint ethValue = address(this).balance;
-
-        uint price = fetchPrice();
-        require(ethValue == 0 || price > 0, "deposit: chainlink is down");
-
-        uint totalValue = lusdValue.add(ethValue.mul(price) / PRECISION);
-
-        // this is in theory not reachable. if it is, better halt deposits
-        // the condition is equivalent to: (totalValue = 0) ==> (totalSupply = 0)
-        require(totalValue > 0 || totalSupply == 0, "deposit: system is rekt");
-
-        uint newShare = PRECISION;
-        if(totalSupply > 0) newShare = totalSupply.mul(lusdAmount) / totalValue;
-
-        // deposit
-        require(LUSD.transferFrom(msg.sender, address(this), lusdAmount), "deposit: transferFrom failed");
-
-        // update LP token
-        mint(msg.sender, newShare);
-
-        emit UserDeposit(msg.sender, lusdAmount, newShare);        
-    }
-   */
   function deposit(uint lpTokenAmount) public {
     // get the total usd value
     (uint backstop, uint collateral, uint staked) = getUSDValue();
@@ -102,6 +76,43 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
   }
 
   function withdraw(uint shares) public {
-    // TODO
+    // calculate the user share from totalSupply
+
+    uint collAmount = collateralToken.balanceOf(address(this)) * shares / totalSupply();
+    if(collAmount > 0){
+      require(collateralToken.transfer(msg.sender, collAmount), "withdraw: collateralToken transfer failed");
+    }
+
+    uint bammLp = IERC20(address(quickswapStaking)).balanceOf(address(this));
+    uint lpAmount = bammLp * shares / totalSupply();
+    console.log("lpAmount", lpAmount);
+    if(lpAmount > 0){
+      quickswapStaking.withdraw(lpAmount);
+      require(lpToken.transfer(msg.sender, lpAmount), "withdraw: lpToken transfer failed");
+    }
+
+    uint token0Amount = token0.balanceOf(address(this)) * shares / totalSupply();
+    if(token0Amount > 0){
+      require(token0.transfer(msg.sender, token0Amount), "withdraw: token0 transfer failed");
+    }
+    
+    uint token1Amount = token1.balanceOf(address(this)) * shares / totalSupply();
+    if(token1Amount > 0){
+      require(token1.transfer(msg.sender, token1Amount), "withdraw: token0 transfer failed");
+    }
+    
+    // uint cropTokenAmount = cropToken.balanceOf(address(this)) * shares / totalSupply();
+    // if(token1Amount > 0){
+    //   require(cropToken.transfer(msg.sender, cropToken), "withdraw: cropToken transfer failed");
+    // }
+
+    // TODO: collect crop token
+    burn(msg.sender, shares);
+
+    emit UserWithdraw(msg.sender, collAmount, lpAmount, token0Amount, token1Amount, shares);            
+  }
+
+  function swap () public { 
+    
   }
 }
