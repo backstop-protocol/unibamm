@@ -105,31 +105,6 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
     emit UserWithdraw(msg.sender, collAmount, lpAmount, token0Amount, token1Amount, shares);            
   }
 
-  /* 
-      function getSwapEthAmount(uint lusdQty) public view returns(uint ethAmount) {
-        uint lusdBalance = LUSD.balanceOf(address(this));
-        uint ethBalance  = address(this).balance;
-
-        uint eth2usdPrice = fetchPrice();
-        if(eth2usdPrice == 0) return 0; // chainlink is down
-
-        uint ethUsdValue = ethBalance.mul(eth2usdPrice) / PRECISION;
-        uint maxReturn = addBps(lusdQty.mul(PRECISION) / eth2usdPrice, int(maxDiscount));
-
-        uint xQty = lusdQty;
-        uint xBalance = lusdBalance;
-        uint yBalance = lusdBalance.add(ethUsdValue.mul(2));
-        
-        uint usdReturn = getReturn(xQty, xBalance, yBalance, A);
-        uint basicEthReturn = usdReturn.mul(PRECISION) / eth2usdPrice;
-
-        if(ethBalance < basicEthReturn) basicEthReturn = ethBalance; // cannot give more than balance 
-        if(maxReturn < basicEthReturn) basicEthReturn = maxReturn;
-
-        ethAmount = basicEthReturn;
-    }
-   */
-
   function swap () public { 
 
   }
