@@ -78,10 +78,10 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
   function withdraw(uint shares) public {
     uint totalSupply = totalSupply();
     uint bammLp = IERC20(address(quickswapStaking)).balanceOf(address(this));
-    uint lpAmount = bammLp * shares / totalSupply;
-    uint token1Amount = token1.balanceOf(address(this)) * shares / totalSupply;
-    uint token0Amount = token0.balanceOf(address(this)) * shares / totalSupply;
-    uint collAmount = collateralToken.balanceOf(address(this)) * shares / totalSupply;
+    uint lpAmount = bammLp.mul(shares) / totalSupply;
+    uint token1Amount = token1.balanceOf(address(this)).mul(shares) / totalSupply;
+    uint token0Amount = token0.balanceOf(address(this)).mul(shares) / totalSupply;
+    uint collAmount = collateralToken.balanceOf(address(this)).mul(shares) / totalSupply;
 
     burn(msg.sender, shares);
 
@@ -102,9 +102,33 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
       require(token1.transfer(msg.sender, token1Amount), "withdraw: token0 transfer failed");
     }
 
-
     emit UserWithdraw(msg.sender, collAmount, lpAmount, token0Amount, token1Amount, shares);            
   }
+
+  /* 
+      function getSwapEthAmount(uint lusdQty) public view returns(uint ethAmount) {
+        uint lusdBalance = LUSD.balanceOf(address(this));
+        uint ethBalance  = address(this).balance;
+
+        uint eth2usdPrice = fetchPrice();
+        if(eth2usdPrice == 0) return 0; // chainlink is down
+
+        uint ethUsdValue = ethBalance.mul(eth2usdPrice) / PRECISION;
+        uint maxReturn = addBps(lusdQty.mul(PRECISION) / eth2usdPrice, int(maxDiscount));
+
+        uint xQty = lusdQty;
+        uint xBalance = lusdBalance;
+        uint yBalance = lusdBalance.add(ethUsdValue.mul(2));
+        
+        uint usdReturn = getReturn(xQty, xBalance, yBalance, A);
+        uint basicEthReturn = usdReturn.mul(PRECISION) / eth2usdPrice;
+
+        if(ethBalance < basicEthReturn) basicEthReturn = ethBalance; // cannot give more than balance 
+        if(maxReturn < basicEthReturn) basicEthReturn = maxReturn;
+
+        ethAmount = basicEthReturn;
+    }
+   */
 
   function swap () public { 
 
