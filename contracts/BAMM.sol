@@ -76,43 +76,37 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
   }
 
   function withdraw(uint shares) public {
-    // calculate the user share from totalSupply
+    uint totalSupply = totalSupply();
+    uint bammLp = IERC20(address(quickswapStaking)).balanceOf(address(this));
+    uint lpAmount = bammLp * shares / totalSupply;
+    uint token1Amount = token1.balanceOf(address(this)) * shares / totalSupply;
+    uint token0Amount = token0.balanceOf(address(this)) * shares / totalSupply;
+    uint collAmount = collateralToken.balanceOf(address(this)) * shares / totalSupply;
 
-    uint collAmount = collateralToken.balanceOf(address(this)) * shares / totalSupply();
+    burn(msg.sender, shares);
+
     if(collAmount > 0){
       require(collateralToken.transfer(msg.sender, collAmount), "withdraw: collateralToken transfer failed");
     }
-
-    uint bammLp = IERC20(address(quickswapStaking)).balanceOf(address(this));
-    uint lpAmount = bammLp * shares / totalSupply();
-    console.log("lpAmount", lpAmount);
+    
     if(lpAmount > 0){
       quickswapStaking.withdraw(lpAmount);
       require(lpToken.transfer(msg.sender, lpAmount), "withdraw: lpToken transfer failed");
     }
 
-    uint token0Amount = token0.balanceOf(address(this)) * shares / totalSupply();
     if(token0Amount > 0){
       require(token0.transfer(msg.sender, token0Amount), "withdraw: token0 transfer failed");
     }
     
-    uint token1Amount = token1.balanceOf(address(this)) * shares / totalSupply();
     if(token1Amount > 0){
       require(token1.transfer(msg.sender, token1Amount), "withdraw: token0 transfer failed");
     }
-    
-    // uint cropTokenAmount = cropToken.balanceOf(address(this)) * shares / totalSupply();
-    // if(token1Amount > 0){
-    //   require(cropToken.transfer(msg.sender, cropToken), "withdraw: cropToken transfer failed");
-    // }
 
-    // TODO: collect crop token
-    burn(msg.sender, shares);
 
     emit UserWithdraw(msg.sender, collAmount, lpAmount, token0Amount, token1Amount, shares);            
   }
 
   function swap () public { 
-    
+
   }
 }
