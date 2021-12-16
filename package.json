@@ -18,9 +18,7 @@
   "dependencies": {
     "@nomiclabs/hardhat-etherscan": "^2.1.7",
     "@nomiclabs/hardhat-truffle5": "^2.0.2",
-
     "@openzeppelin/contracts": "3.0.0",
-
     "hardhat-artifactor": "^0.2.0",
     "hardhat-gas-reporter": "^1.0.4",
     "solidity-coverage": "^0.7.17"
