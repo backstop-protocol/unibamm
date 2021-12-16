@@ -105,6 +105,48 @@ contract BAMM is UniswapLPManager, CropJoinAdapter, Ownable {
     emit UserWithdraw(msg.sender, collAmount, lpAmount, token0Amount, token1Amount, shares);            
   }
 
+  /* 
+      function getSwapEthAmount(uint lusdQty) public view returns(uint ethAmount) {
+        uint lusdBalance = LUSD.balanceOf(address(this));
+        uint ethBalance  = address(this).balance;
+
+        uint eth2usdPrice = fetchPrice();
+        if(eth2usdPrice == 0) return 0; // chainlink is down
+
+        uint ethUsdValue = ethBalance.mul(eth2usdPrice) / PRECISION;
+        uint maxReturn = addBps(lusdQty.mul(PRECISION) / eth2usdPrice, int(maxDiscount));
+
+        uint xQty = lusdQty;
+        uint xBalance = lusdBalance;
+        uint yBalance = lusdBalance.add(ethUsdValue.mul(2));
+        
+        uint usdReturn = getReturn(xQty, xBalance, yBalance, A);
+        uint basicEthReturn = usdReturn.mul(PRECISION) / eth2usdPrice;
+
+        if(ethBalance < basicEthReturn) basicEthReturn = ethBalance; // cannot give more than balance 
+        if(maxReturn < basicEthReturn) basicEthReturn = maxReturn;
+
+        ethAmount = basicEthReturn;
+    }
+   */
+
+  function getSwapAmount(address token, uint amount) public view returns(uint swapAmount) {
+    require(token == address(token0) || token == address(token1), "getSwapAmount faild: swap can only be made between the pair tokens");
+    // check which token is greater to permit swap only for the one we want
+    uint tokenAmount = IERC20(token).balanceOf(address(this));
+    require(tokenAmount > 0, "getSwapAmount faild: token supply is 0");
+
+    address otherToken = token == address(token0) ? address(token1) : address(token0);
+    uint otherTokenAmount = IERC20(otherToken).balanceOf(address(this));
+    require(tokenAmount > otherTokenAmount, "getSwapAmount faild: token balance low try to swap the other token in the token pair");
+    // todo fetch prices
+    uint tokenInUsd = tokenAmount.mul(feed.getPrice(IERC20(token))) / IERC20(token).decimals();
+    uint otherTokenInUsd = otherTokenAmount.mul(feed.getPrice(IERC20(otherToken))) / IERC20(otherToken).decimals();
+    // calculate the swap amount
+    uint swapAmountUsd = tokenInUsd.sub(otherTokenInUsd) / 2;
+    swapAmount = swapAmountUsd / feed.getPrice(IERC20(otherToken));
+  }
+
   function swap () public { 
 
   }

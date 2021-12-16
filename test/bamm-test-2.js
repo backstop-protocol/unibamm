@@ -180,7 +180,7 @@ contract('BAMM 2', async accounts => {
       const depositAmount = toBN("3162277660167379")
       await bammInstance.deposit(depositAmount, { from: alice })
       
-      // TODO: transfers to the unibamm to simulate a not fully rebalanced state
+      //transfers to the unibamm to simulate a not fully rebalanced state
       const transferAmount = toBN("72634552")
       await tokenA.transfer(bammInstance.address, transferAmount, {from: bammOwner})
       await tokenB.transfer(bammInstance.address, transferAmount, {from: bammOwner})
@@ -214,11 +214,14 @@ contract('BAMM 2', async accounts => {
       assert.equal(aliceLpBalAfter.toString(), half(depositAmount).toString())
       assert.equal(totalSupplyAfter.toString(), half(totalSupplyBefore).toString())
 
-      // TODO: check all other tokens
       assert.equal(aliceTokenAAfter.toString(), aliceTokenABefore.add(half(transferAmount)).toString())
       assert.equal(aliceTokenBAfter.toString(), aliceTokenBBefore.add(half(transferAmount)).toString())
       assert.equal(aliceCollateralTokenAfter.toString(), aliceCollateralTokenBefore.add(half(transferAmount)).toString())
 
+    })
+
+    it.only("getSwapAmount", async ()=> {
+      assertRevert(bammInstance.getSwapAmount(rewardToken.address, "100"), "getSwapAmount faild: swap can only be made between the pair tokens")
     })
 
     it("stakeLP & withdrawLP", async () => {
